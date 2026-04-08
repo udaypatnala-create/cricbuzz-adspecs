@@ -3,12 +3,13 @@ import { getFirestore, collection, getDocs, setDoc, doc } from "https://www.gsta
 import { getStorage, ref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-storage.js";
 
 const firebaseConfig = {
-  apiKey: "AIzaSyAlO_s9S98snIJJcEcgy3_N_5AOUR-sOMI",
-  authDomain: "coffee-spark-ai-barista-1533b.firebaseapp.com",
-  projectId: "coffee-spark-ai-barista-1533b",
-  storageBucket: "coffee-spark-ai-barista-1533b.firebasestorage.app",
-  messagingSenderId: "889650442187",
-  appId: "1:889650442187:web:24048033267d744594904e"
+  apiKey: "AIzaSyBnsFPu6ESlbgdrJjvRhqva1Ytfi5nmJFY",
+  authDomain: "project-6292703c-0ec8-4a6f-811.firebaseapp.com",
+  projectId: "project-6292703c-0ec8-4a6f-811",
+  storageBucket: "project-6292703c-0ec8-4a6f-811.firebasestorage.app",
+  messagingSenderId: "185190996431",
+  appId: "1:185190996431:web:386fe8ee086e99d230daba",
+  measurementId: "G-EYTHJPHCMY"
 };
 
 const app = initializeApp(firebaseConfig);
