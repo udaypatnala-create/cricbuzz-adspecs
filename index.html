@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cricbuzz Ad Specs</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body class="readonly-mode">
+    <div class="app-container">
+        <!-- Sidebar Filters -->
+        <aside class="sidebar glass-panel">
+            <h1 class="logo" id="logoBtn" style="cursor: pointer; user-select: none;">Cricbuzz <span>Ad Specs</span></h1>
+            
+            <div class="filter-section">
+                <h3>Platform</h3>
+                <div class="filter-group" id="platformFilters">
+                    <!-- Checkboxes injected by JS -->
+                </div>
+            </div>
+
+            <div class="filter-section">
+                <h3>Banner Type</h3>
+                <div class="filter-group" id="typeFilters">
+                    <!-- Checkboxes injected by JS -->
+                </div>
+            </div>
+            
+            <button class="btn btn-primary" id="resetFiltersBtn">Reset Filters</button>
+            <button class="btn btn-sm" id="exportBtn" style="margin-top: 12px; border: 1px solid var(--primary); background: rgba(139, 92, 246, 0.1); color: white; transition: all 0.3s;">Export to Excel</button>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <header class="top-nav glass-panel">
+                <div class="search-wrap">
+                    <input type="text" id="searchInput" placeholder="Search specs by name or comments...">
+                </div>
+                <div class="user-info">
+                    <button class="btn btn-primary admin-only" id="newSpecBtn" style="margin-right: 16px;">+ New Spec</button>
+                    <span class="admin-only">Admin Mode</span>
+                    <div class="avatar"></div>
+                </div>
+            </header>
+
+            <div class="dashboard-metrics">
+                <div class="metric-card glass-panel">
+                    <span class="label">Total Specs</span>
+                    <span class="value" id="totalSpecsCount">0</span>
+                </div>
+                <div class="metric-card glass-panel">
+                    <span class="label">Desktop Banners</span>
+                    <span class="value" id="deskCount">0</span>
+                </div>
+                <div class="metric-card glass-panel">
+                    <span class="label">Mobile Banners</span>
+                    <span class="value" id="mobCount">0</span>
+                </div>
+            </div>
+
+            <div class="specs-grid" id="specsGrid">
+                <!-- Cards injected by JS -->
+            </div>
+        </main>
+    </div>
+
+    <!-- Edit Modal -->
+    <div class="modal-overlay" id="editModal">
+        <div class="modal glass-panel popup-anim">
+            <h2>Edit Spec</h2>
+            <div class="edit-form" id="editForm">
+                <input type="hidden" id="editId">
+                <div class="form-grid">
+                    <div class="input-group">
+                        <label>Banner Type</label>
+                        <input type="text" id="editType" required>
+                    </div>
+                    <div class="input-group">
+                        <label>Platform (select multiple)</label>
+                        <div class="platform-checkboxes" id="editPlatformBoxes">
+                            <label><input type="checkbox" value="Desktop"> Desktop</label>
+                            <label><input type="checkbox" value="Mobile site"> Mobile site</label>
+                            <label><input type="checkbox" value="Apps"> Apps</label>
+                            <label><input type="checkbox" value="Video/Other"> Video/Other</label>
+                        </div>
+                    </div>
+                    <div class="input-group">
+                        <label>Dimension</label>
+                        <input type="text" id="editDimension">
+                    </div>
+                    <div class="input-group">
+                        <label>Format</label>
+                        <select id="editFormat">
+                            <option value="JPG">JPG</option>
+                            <option value="JPG/GIF">JPG/GIF</option>
+                            <option value="JPG/GIF/3rd Party">JPG/GIF/3rd Party</option>
+                            <option value="GIF">GIF</option>
+                            <option value="GIF/JPG">GIF/JPG</option>
+                            <option value="Mp4">Mp4</option>
+                            <option value="HTML5">HTML5</option>
+                        </select>
+                    </div>
+                    <div class="input-group">
+                        <label>Size (max)</label>
+                        <input type="text" id="editSize">
+                    </div>
+                    <div class="input-group">
+                        <label>Duration / Animation</label>
+                        <input type="text" id="editDuration">
+                    </div>
+                    <div class="input-group full-width">
+                        <label>Comments / Info</label>
+                        <textarea id="editComments"></textarea>
+                    </div>
+                </div>
+                <div class="modal-actions">
+                    <button type="button" class="btn btn-text" id="closeModalBtn">Cancel</button>
+                    <button type="button" class="btn btn-primary" id="saveSpecBtn">Save Changes</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="data.js?v=7"></script>
+    <script src="app.js?v=7"></script>
+</body>
+</html>
