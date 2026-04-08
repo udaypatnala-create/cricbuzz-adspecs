@@ -113,6 +113,20 @@
                         <label>Comments / Info</label>
                         <textarea id="editComments"></textarea>
                     </div>
+                    <div class="attachments-section full-width">
+                        <div class="attachment-column">
+                            <label>Banners (Firebase Storage)</label>
+                            <div id="bannerList" class="file-list"></div>
+                            <button type="button" class="btn btn-sm btn-text" onclick="document.getElementById('bannerUpload').click()">+ Add Banner</button>
+                            <input type="file" id="bannerUpload" style="display: none" multiple>
+                        </div>
+                        <div class="attachment-column">
+                            <label>Screenshots (Firebase Storage)</label>
+                            <div id="screenshotList" class="file-list"></div>
+                            <button type="button" class="btn btn-sm btn-text" onclick="document.getElementById('screenshotUpload').click()">+ Add Screenshot</button>
+                            <input type="file" id="screenshotUpload" style="display: none" multiple>
+                        </div>
+                    </div>
                 </div>
                 <div class="modal-actions">
                     <button type="button" class="btn btn-text" id="closeModalBtn">Cancel</button>

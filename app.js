@@ -1,5 +1,6 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
 import { getFirestore, collection, getDocs, setDoc, doc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+import { getStorage, ref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-storage.js";
 
 const firebaseConfig = {
   apiKey: "AIzaSyAlO_s9S98snIJJcEcgy3_N_5AOUR-sOMI",
@@ -12,10 +13,13 @@ const firebaseConfig = {
 
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
+const storage = getStorage(app);
 
 // Global state
 let specsData = [];
 let currentFilteredSpecs = [];
+let currentBanners = [];
+let currentScreenshots = [];
 let filters = {
     platforms: new Set(),
     types: new Set(),
@@ -149,6 +153,58 @@ function setupEventListeners() {
     document.getElementById('editModal').addEventListener('click', (e) => {
         if (e.target.id === 'editModal') closeModal();
     });
+
+    document.getElementById('bannerUpload').addEventListener('change', async (e) => {
+        await handleFileUpload(e.target.files, 'banners', currentBanners, 'bannerList');
+        e.target.value = '';
+    });
+    
+    document.getElementById('screenshotUpload').addEventListener('change', async (e) => {
+        await handleFileUpload(e.target.files, 'screenshots', currentScreenshots, 'screenshotList');
+        e.target.value = '';
+    });
+}
+
+async function handleFileUpload(files, folder, targetArray, listId) {
+    // Show a temporary loading indicator
+    document.getElementById(listId).innerHTML += '<div class="file-item">Uploading...</div>';
+    
+    for (const file of files) {
+        const uniqueName = Date.now() + "_" + file.name;
+        const storageRef = ref(storage, `${folder}/${uniqueName}`);
+        try {
+            await uploadBytes(storageRef, file);
+            const url = await getDownloadURL(storageRef);
+            targetArray.push({ name: file.name, url: url });
+        } catch (e) {
+            console.error("Upload failed", e);
+        }
+    }
+    renderFileList(targetArray, listId, folder);
+}
+
+function renderFileList(arr, listId, type) {
+    const listEl = document.getElementById(listId);
+    listEl.innerHTML = '';
+    arr.forEach((item, index) => {
+        listEl.innerHTML += `
+            <div class="file-item">
+                <a href="${item.url}" target="_blank" title="${item.name}">${item.name}</a>
+                <button type="button" onclick="removeAttachment(${index}, '${type}')">×</button>
+            </div>
+        `;
+    });
+    window.removeAttachment = removeAttachment;
+}
+
+function removeAttachment(index, type) {
+    if (type === 'banners') {
+        currentBanners.splice(index, 1);
+        renderFileList(currentBanners, 'bannerList', 'banners');
+    } else {
+        currentScreenshots.splice(index, 1);
+        renderFileList(currentScreenshots, 'screenshotList', 'screenshots');
+    }
 }
 
 function updateDashboard() {
@@ -222,6 +278,10 @@ function renderCards(data) {
                     <span class="spec-val" style="text-align:left; max-width:100%;">${spec.comments}</span>
                 </div>` : ''}
             </div>
+            <div class="attachments-display">
+                ${(spec.banners || []).map(b => `<a href="${b.url}" target="_blank" class="attachment-pill">🖼️ ${b.name}</a>`).join('')}
+                ${(spec.screenshots || []).map(s => `<a href="${s.url}" target="_blank" class="attachment-pill">📸 ${s.name}</a>`).join('')}
+            </div>
             <div class="card-actions">
                 <button class="btn btn-sm admin-only" onclick="openEditModal('${spec.id}')">Edit Spec</button>
             </div>
@@ -252,6 +312,11 @@ function openEditModal(id) {
     document.getElementById('editDuration').value = spec.duration || "";
     document.getElementById('editComments').value = spec.comments || "";
 
+    currentBanners = [...(spec.banners || [])];
+    currentScreenshots = [...(spec.screenshots || [])];
+    renderFileList(currentBanners, 'bannerList', 'banners');
+    renderFileList(currentScreenshots, 'screenshotList', 'screenshots');
+
     document.getElementById('editModal').classList.add('active');
 }
 
@@ -268,6 +333,11 @@ function openNewModal() {
     document.getElementById('editSize').value = "";
     document.getElementById('editDuration').value = "";
     document.getElementById('editComments').value = "";
+
+    currentBanners = [];
+    currentScreenshots = [];
+    renderFileList(currentBanners, 'bannerList', 'banners');
+    renderFileList(currentScreenshots, 'screenshotList', 'screenshots');
 
     document.getElementById('editModal').classList.add('active');
 }
@@ -291,6 +361,8 @@ async function handleEditSubmit(e) {
         size: document.getElementById('editSize').value,
         duration: document.getElementById('editDuration').value,
         comments: document.getElementById('editComments').value,
+        banners: currentBanners,
+        screenshots: currentScreenshots,
     };
 
     let targetId = id;
