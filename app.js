@@ -1,3 +1,18 @@
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+import { getFirestore, collection, getDocs, setDoc, doc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyAlO_s9S98snIJJcEcgy3_N_5AOUR-sOMI",
+  authDomain: "coffee-spark-ai-barista-1533b.firebaseapp.com",
+  projectId: "coffee-spark-ai-barista-1533b",
+  storageBucket: "coffee-spark-ai-barista-1533b.firebasestorage.app",
+  messagingSenderId: "889650442187",
+  appId: "1:889650442187:web:24048033267d744594904e"
+};
+
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
+
 // Global state
 let specsData = [];
 let currentFilteredSpecs = [];
@@ -8,34 +23,32 @@ let filters = {
 };
 
 // Initialize
-function init() {
-    const SCHEMA_VERSION = 2;
-    if (localStorage.getItem('schemaVersion') !== String(SCHEMA_VERSION)) {
-        localStorage.removeItem('adSpecsDataCache');
-        localStorage.setItem('schemaVersion', String(SCHEMA_VERSION));
-    }
-
+async function init() {
     if (localStorage.getItem('adminMode') === 'true') {
         document.body.classList.remove('readonly-mode');
     }
 
-    const localData = localStorage.getItem('adSpecsDataCache');
-    if (localData) {
-        specsData = JSON.parse(localData);
-    }  
-    
-    if (specsData.length === 0 && typeof adSpecsData !== 'undefined') {
-        specsData = adSpecsData;
-        saveData();
+    try {
+        const querySnapshot = await getDocs(collection(db, "specs"));
+        specsData = [];
+        querySnapshot.forEach((docSnap) => {
+            specsData.push(docSnap.data());
+        });
+
+        if (specsData.length === 0 && window.adSpecsData) {
+            specsData = window.adSpecsData;
+            for (const spec of specsData) {
+                await setDoc(doc(db, "specs", spec.id), spec);
+            }
+        }
+    } catch (e) {
+        console.error("Error fetching documents: ", e);
+        if (window.adSpecsData) specsData = window.adSpecsData;
     }
 
     renderFilters();
     setupEventListeners();
     updateDashboard();
-}
-
-function saveData() {
-    localStorage.setItem('adSpecsDataCache', JSON.stringify(specsData));
 }
 
 function getUniqueValues(key) {
@@ -259,7 +272,7 @@ function openNewModal() {
     document.getElementById('editModal').classList.add('active');
 }
 
-function handleEditSubmit(e) {
+async function handleEditSubmit(e) {
     if (e) e.preventDefault();
     console.log("handleEditSubmit fired!");
     
@@ -280,24 +293,29 @@ function handleEditSubmit(e) {
         comments: document.getElementById('editComments').value,
     };
 
+    let targetId = id;
     if (id) {
         const specIndex = specsData.findIndex(s => s.id === id);
         if (specIndex > -1) {
             specsData[specIndex] = { ...specsData[specIndex], ...newData };
         }
     } else {
-        const newId = "spec_" + Math.random().toString(36).substr(2, 9);
-        specsData.push({ id: newId, ...newData });
+        targetId = "spec_" + Math.random().toString(36).substr(2, 9);
+        specsData.push({ id: targetId, ...newData });
         // re-render filters since new types might exist
         renderFilters(); 
     }
     
-    console.log("Saved and closing modal...");
-    saveData();
+    try {
+        await setDoc(doc(db, "specs", targetId), { id: targetId, ...newData }, { merge: true });
+        console.log("Saved to Firebase successfully.");
+    } catch (err) {
+        console.error("Error writing to Firebase:", err);
+        alert("Failed to save to cloud. Check console for details.");
+    }
+
     closeModal();
-    setTimeout(() => {
-        updateDashboard();
-    }, 10);
+    updateDashboard();
 }
 
 function exportToXLS(data) {

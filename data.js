@@ -1,4 +1,4 @@
-const adSpecsData = [
+window.adSpecsData = [
   {
     "id": "spec_mpu",
     "type": "MPU",
