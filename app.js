@@ -5,13 +5,12 @@ const CLOUDINARY_CLOUD_NAME = "djsqmkqqw";
 const CLOUDINARY_UPLOAD_PRESET = "ulbyiqfj";
 
 const firebaseConfig = {
-  apiKey: "AIzaSyBnsFPu6ESlbgdrJjvRhqva1Ytfi5nmJFY",
-  authDomain: "project-6292703c-0ec8-4a6f-811.firebaseapp.com",
-  projectId: "project-6292703c-0ec8-4a6f-811",
-  storageBucket: "project-6292703c-0ec8-4a6f-811.firebasestorage.app",
-  messagingSenderId: "185190996431",
-  appId: "1:185190996431:web:386fe8ee086e99d230daba",
-  measurementId: "G-EYTHJPHCMY"
+  apiKey: "AIzaSyAlO_s9S98snIJJcEcgy3_N_5AOUR-sOMI",
+  authDomain: "coffee-spark-ai-barista-1533b.firebaseapp.com",
+  projectId: "coffee-spark-ai-barista-1533b",
+  storageBucket: "coffee-spark-ai-barista-1533b.firebasestorage.app",
+  messagingSenderId: "889650442187",
+  appId: "1:889650442187:web:24048033267d744594904e"
 };
 
 const app = initializeApp(firebaseConfig);
