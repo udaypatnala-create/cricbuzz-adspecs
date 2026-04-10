@@ -155,6 +155,11 @@ function setupEventListeners() {
         if (e.target.id === 'editModal') closeModal();
     });
 
+    document.getElementById('closePreviewBtn').addEventListener('click', closePreviewModal);
+    document.getElementById('previewModal').addEventListener('click', (e) => {
+        if (e.target.id === 'previewModal') closePreviewModal();
+    });
+
     document.getElementById('bannerUpload').addEventListener('change', async (e) => {
         await handleFileUpload(e.target.files, 'banners', currentBanners, 'bannerList');
         e.target.value = '';
@@ -202,7 +207,7 @@ function renderFileList(arr, listId, type) {
     arr.forEach((item, index) => {
         listEl.innerHTML += `
             <div class="file-item">
-                <a href="${item.url}" target="_blank" title="${item.name}">${item.name}</a>
+                <button type="button" style="background:none; border:none; color:var(--text-main); cursor:pointer; text-decoration:underline; font-size: inherit; font-family: inherit; text-align: left; max-width: 150px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;" onclick="openPreviewModal('${item.url}')" title="${item.name}">${item.name}</button>
                 <button type="button" onclick="removeAttachment(${index}, '${type}')">×</button>
             </div>
         `;
@@ -292,8 +297,8 @@ function renderCards(data) {
                 </div>` : ''}
             </div>
             <div class="attachments-display">
-                ${(spec.banners || []).map(b => `<a href="${b.url}" target="_blank" class="attachment-pill">🖼️ ${b.name}</a>`).join('')}
-                ${(spec.screenshots || []).map(s => `<a href="${s.url}" target="_blank" class="attachment-pill">📸 ${s.name}</a>`).join('')}
+                ${(spec.banners || []).map(b => `<button type="button" onclick="openPreviewModal('${b.url}')" class="attachment-pill" style="cursor:pointer;">🖼️ ${b.name}</button>`).join('')}
+                ${(spec.screenshots || []).map(s => `<button type="button" onclick="openPreviewModal('${s.url}')" class="attachment-pill" style="cursor:pointer;">📸 ${s.name}</button>`).join('')}
             </div>
             <div class="card-actions">
                 <button class="btn btn-sm admin-only" onclick="openEditModal('${spec.id}')">Edit Spec</button>
@@ -490,6 +495,30 @@ function exportToXLS(data) {
     link.click();
     document.body.removeChild(link);
 }
+
+function openPreviewModal(url) {
+    const container = document.getElementById('previewContainer');
+    const lowerUrl = url.toLowerCase();
+    
+    if (lowerUrl.endsWith('.mp4') || lowerUrl.endsWith('.webm') || lowerUrl.endsWith('.mov') || lowerUrl.endsWith('.ogg')) {
+        container.innerHTML = `<video controls autoplay style="max-width: 100%; max-height: 70vh; border-radius: 8px;"><source src="${url}"></video>`;
+    } else if (lowerUrl.endsWith('.zip') || lowerUrl.endsWith('.rar') || lowerUrl.endsWith('.pdf')) {
+        window.open(url, '_blank');
+        return;
+    } else {
+        container.innerHTML = `<img src="${url}" style="max-width: 100%; max-height: 70vh; border-radius: 8px; object-fit: contain;">`;
+    }
+    
+    document.getElementById('previewModal').classList.add('active');
+}
+
+function closePreviewModal() {
+    document.getElementById('previewModal').classList.remove('active');
+    document.getElementById('previewContainer').innerHTML = ''; // Stop video playback
+}
+
+window.openPreviewModal = openPreviewModal;
+window.closePreviewModal = closePreviewModal;
 
 // Start
 if (document.readyState === 'loading') {
