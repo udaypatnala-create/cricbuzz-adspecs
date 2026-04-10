@@ -1,6 +1,8 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
 import { getFirestore, collection, getDocs, setDoc, doc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
-import { getStorage, ref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-storage.js";
+
+const CLOUDINARY_CLOUD_NAME = "djsqmkqqw";
+const CLOUDINARY_UPLOAD_PRESET = "ulbyiqfj";
 
 const firebaseConfig = {
   apiKey: "AIzaSyBnsFPu6ESlbgdrJjvRhqva1Ytfi5nmJFY",
@@ -14,7 +16,6 @@ const firebaseConfig = {
 
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
-const storage = getStorage(app);
 
 // Global state
 let specsData = [];
@@ -171,12 +172,24 @@ async function handleFileUpload(files, folder, targetArray, listId) {
     document.getElementById(listId).innerHTML += '<div class="file-item">Uploading...</div>';
     
     for (const file of files) {
-        const uniqueName = Date.now() + "_" + file.name;
-        const storageRef = ref(storage, `${folder}/${uniqueName}`);
+        const formData = new FormData();
+        formData.append("file", file);
+        formData.append("upload_preset", CLOUDINARY_UPLOAD_PRESET);
+        formData.append("folder", `ad_specs/${folder}`);
+        
         try {
-            await uploadBytes(storageRef, file);
-            const url = await getDownloadURL(storageRef);
-            targetArray.push({ name: file.name, url: url });
+            const response = await fetch(`https://api.cloudinary.com/v1_1/${CLOUDINARY_CLOUD_NAME}/auto/upload`, {
+                method: "POST",
+                body: formData
+            });
+            const data = await response.json();
+            
+            if (data.secure_url) {
+                targetArray.push({ name: file.name, url: data.secure_url });
+            } else {
+                console.error("Cloudinary error:", data);
+                alert("Upload failed. Check console.");
+            }
         } catch (e) {
             console.error("Upload failed", e);
         }
